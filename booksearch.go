@@ -43,6 +43,7 @@ func doByJson(data interface{}) error {
 }
 
 func do(reader io.Reader) error {
+	// URL はとりあえず固定
 	req, err := http.NewRequest("GET", "http://localhost:9200/my_index/_search", reader)
 	if err != nil {
 		return err
