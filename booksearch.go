@@ -19,22 +19,21 @@ type Match struct {
 	Target map[string]string `json:"match"`
 }
 
-func doByJson(data interface{}, mode string) error {
+func doByJson(method, url string, data interface{}) error {
 	json, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	return do(bytes.NewReader(json))
+	return do(method, url, bytes.NewReader(json))
 }
 
-func do(reader io.Reader) error {
+func do(method, url string, reader io.Reader) error {
 	// URL はとりあえず固定
-	req, err := http.NewRequest("GET", "http://localhost:9200/my_index/_search", reader)
+	req, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -60,10 +59,18 @@ func Register(filepath string) error {
 
 	s := base64.StdEncoding.EncodeToString(f)
 
-	return doByJson(map[string]string{"data": s})
+	return doByJson(
+		"POST",
+		"http://localhost:9200/my_index/_doc?pipeline=attachment",
+		map[string]string{"data": s},
+	)
 }
 
 // Search search for the specified word in all books
 func Search(word string) error {
-	return doByJson(Query{Match{map[string]string{"attachment.content": word}}})
+	return doByJson(
+		"GET",
+		"http://localhost:9200/my_index/_search",
+		Query{Match{map[string]string{"attachment.content": word}}},
+	)
 }
