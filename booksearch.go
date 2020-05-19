@@ -19,22 +19,7 @@ type Match struct {
 	Target map[string]string `json:"match"`
 }
 
-func newRegisterReq(filepath string) (io.Reader, error) {
-	f, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	s := base64.StdEncoding.EncodeToString(f)
-
-	json, err := json.Marshal(map[string]string{"data": s})
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewReader(json), nil
-}
-
-func doByJson(data interface{}) error {
+func doByJson(data interface{}, mode string) error {
 	json, err := json.Marshal(data)
 	if err != nil {
 		return err
